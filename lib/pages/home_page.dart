@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_application_1/model/cart_model.dart';
 import 'package:google_fonts/google_fonts.dart';
-
+import 'package:provider/provider.dart';
 import '../components/grocery_item_tile.dart';
+import 'cart_page.dart';
 
 class HomePage extends StatelessWidget {
   const HomePage({super.key});
@@ -9,6 +11,14 @@ class HomePage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      floatingActionButton: FloatingActionButton(
+        onPressed: () =>
+            Navigator.push(context, MaterialPageRoute(builder: (context) {
+          return const CartPage();
+        })),
+        backgroundColor: Colors.amberAccent,
+        child: const Icon(Icons.shopping_bag_outlined),
+      ),
       body: SafeArea(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -18,8 +28,8 @@ class HomePage extends StatelessWidget {
             ),
             //good morning
 
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 24.0),
+            const Padding(
+              padding: EdgeInsets.symmetric(horizontal: 24.0),
               child: Text("Good morning,"),
             ),
 
@@ -40,8 +50,8 @@ class HomePage extends StatelessWidget {
             ),
 
             // divider
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 24.0),
+            const Padding(
+              padding: EdgeInsets.symmetric(horizontal: 24.0),
               child: Divider(),
             ),
 
@@ -51,8 +61,8 @@ class HomePage extends StatelessWidget {
 
             //fresh items + grid
 
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 24.0),
+            const Padding(
+              padding: EdgeInsets.symmetric(horizontal: 24.0),
               child: Text(
                 "Fresh Items",
                 style: TextStyle(fontSize: 16),
@@ -60,13 +70,28 @@ class HomePage extends StatelessWidget {
             ),
 
             Expanded(
-                child: GridView.builder(
-              gridDelegate:
-                  SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount: 2),
-              itemBuilder: (context, index) {
-                return Container(); //GroceryItemTile(); will be adding...
-              },
-            ))
+                child: Consumer<CartModel>(builder: (context, value, child) {
+              return GridView.builder(
+                itemCount: value.shopItems.length,
+                padding: const EdgeInsets.all(12.0),
+                gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                  crossAxisCount: 2,
+                  childAspectRatio: 1 / 1.3,
+                ),
+                itemBuilder: (context, index) {
+                  return GroceryItemTile(
+                    itemName: value.shopItems[index][0],
+                    itemPrice: value.shopItems[index][1],
+                    imagePath: value.shopItems[index][2],
+                    color: value.shopItems[index][3],
+                    onPressed: () {
+                      Provider.of<CartModel>(context, listen: false)
+                          .addItemToCart(index);
+                    },
+                  );
+                },
+              );
+            }))
           ],
         ),
       ),
